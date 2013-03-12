@@ -9,6 +9,7 @@ tmp/*
 definitions/*
 Vagrantfile
 Vagrantfile.*
+!lib/veewee/templates/Vagrantfile.erb
 cookbooks/*
 manifests/*
 boxes/*
@@ -17,3 +18,5 @@ pkg/*
 .vagrant
 virtualfloppy.vfd
 *.swp
+AutoPartition.app
+.rbenv-gemsets

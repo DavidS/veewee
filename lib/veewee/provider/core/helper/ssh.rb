@@ -3,7 +3,7 @@ module Veewee
     module Core
       module Helper
 
-        class SshResult
+        class SshResult < RuntimeError
           attr_accessor :stdout
           attr_accessor :stderr
           attr_accessor :status
@@ -25,20 +25,24 @@ module Veewee
             defaults={ :port => '22', :timeout => 20000 }
 
             options=defaults.merge(options)
+
             timeout = options[:timeout]
             timeout=ENV['VEEWEE_TIMEOUT'].to_i unless ENV['VEEWEE_TIMEOUT'].nil?
 
+            unless options[:mute]
             ui.info  "Waiting for ssh login on #{ip} with user #{options[:user]} to sshd on port => #{options[:port]} to work, timeout=#{timeout} sec"
+            end
+
 
             begin
               Timeout::timeout(timeout) do
                 connected=false
                 while !connected do
                   begin
-                    env.ui.info ".",{:new_line => false , :prefix => false}
+                    env.ui.info ".",{:new_line => false , :prefix => false} unless options[:mute]
                     Net::SSH.start(ip, options[:user], { :port => options[:port] , :password => options[:password], :paranoid => false , :timeout => timeout }) do |ssh|
 
-                      ui.info "\n", {:prefix => false}
+                      ui.info "\n", {:prefix => false} unless options[:mute]
                       block.call(ip);
                       return true
                     end
@@ -83,7 +87,9 @@ module Veewee
             stderr=""
             status=-99999
 
-            ui.info "Executing command: #{command}"
+            unless options[:mute]
+              ui.info "Executing command: #{command}"
+            end
 
             Net::SSH.start(host, options[:user], { :port => options[:port], :password => options[:password], :paranoid => false }) do |ssh|
 
@@ -104,15 +110,16 @@ module Veewee
                   ch.on_data do |c, data|
                     stdout+=data
 
-                    ui.info data
+                    ui.info data unless options[:mute]
 
                   end
 
                   # "on_extended_data" is called when the process writes something to stderr
+                  # NOTE: When requesting a pty (ch.request_pty), everything goes to stdout
                   ch.on_extended_data do |c, type, data|
                     stderr+=data
 
-                    ui.info data
+                    ui.info data unless options[:mute]
 
                   end
 
@@ -122,14 +129,14 @@ module Veewee
                     exit_code = data.read_long
                     status=exit_code
                     if exit_code > 0
-                      ui.info "ERROR: exit code #{exit_code}"
+                      ui.info "ERROR: exit code #{exit_code}" unless options[:mute]
                     else
                       #ui.info "Successfully executed"
                     end
                   end
 
                   channel.on_request("exit-signal") do |ch, data|
-                    ui.info "SIGNAL: #{data.read_long}"
+                    ui.info "SIGNAL: #{data.read_long}" unless options[:mute]
                   end
 
                   ch.on_close {
@@ -146,7 +153,7 @@ module Veewee
               if (options[:exitcode]=="*")
                 #its a test so we don't need to worry
               else
-                raise "Exitcode was not what we expected"
+                raise Veewee::Provider::Core::Helper::SshResult.new(stdout,stderr,status), "Exitcode was not what we expected"
               end
 
             end
