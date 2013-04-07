@@ -8,6 +8,11 @@ if [ -z "$CHEF_INSTALLMETHOD" ]; then
   export CHEF_INSTALLMETHOD="gems"
 fi
 
+# override pure installation
+if [ "$PURE" == "yes" ]; then
+  export CHEF_INSTALLMETHOD="package"
+fi
+
 # Installing chef
 case $CHEF_INSTALLMETHOD in
   "gems")
