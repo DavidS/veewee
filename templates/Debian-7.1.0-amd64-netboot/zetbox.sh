@@ -1,10 +1,14 @@
 
+set -e -x
+
 DEST="/var/lib/zetbox/$(date --iso)"
 # encode the path for systemd
 DEST_ENC="${DEST//-/\\x2d}"
 DEST_ENC="${DEST_ENC#/}"
 DEST_ENC="${DEST_ENC//\//-}"
 
+addgroup --system zetbox
+adduser --system --home=/var/lib/zetbox --ingroup zetbox zetbox
 
 # install required software
 apt-get -y install mono-complete mono-fastcgi-server4 nginx postgresql postgresql-contrib apache2-utils
@@ -12,7 +16,12 @@ apt-get -y install mono-complete mono-fastcgi-server4 nginx postgresql postgresq
 
 # fetch prepared binaries from build server
 wget 'http://jenkins:8080/view/dasz/job/dasz-develop-Linux_deploy/ws/deployed/*zip*/deployed.zip' -O zetbox.zip
+mkdir -p "$DEST"
 unzip zetbox.zip -d "$DEST"
+
+wget 'http://jenkins:8080/view/dasz/job/dasz-develop-Linux_deploy/ws/Configs/Appliance/*zip*/Appliance.zip'
+unzip zetbox.zip -d "$DEST"
+mv "$DEST/Appliance" "$DEST/Configs"
 
 
 # prepare some required directories
@@ -64,17 +73,14 @@ server {
 EOF
 
 
-# install database
-# may not be properly started after installing
-/etc/init.d/postgresql restart
-
+# create database
 export DB_PASS="eicheGhah8thohSho7qu"
-
 echo -e "$DB_PASS\n$DB_PASS" | su - postgres -c 'createuser --encrypted --no-createdb --no-createrole --no-superuser --pwprompt zetbox'
 su - postgres -c 'createdb --encoding=utf-8 --owner=zetbox zetbox'
 su - postgres -c "psql -c 'CREATE EXTENSION \"uuid-ossp\"' zetbox"
 
-mono --debug ./deployed/PrepareEnv.exe Configs/Appliance
+cd "${DEST}"
+mono --debug ./deployed/PrepareEnv.exe Configs
 cd deployed
 
 htpasswd -bc .htpasswd zetbox "$DB_PASS"
