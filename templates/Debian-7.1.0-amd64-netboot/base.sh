@@ -8,6 +8,7 @@ EOF
 
 # Update the box
 apt-get -y update
+apt-get -y full-upgrade
 apt-get -y install linux-headers-$(uname -r) build-essential \
 		zlib1g-dev libssl-dev libreadline-gplv2-dev \
 		curl unzip systemd mono-complete mono-xsp
