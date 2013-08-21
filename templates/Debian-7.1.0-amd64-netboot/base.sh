@@ -1,8 +1,16 @@
+# configure dasz' local mirror
+cp /etc/apt/sources.list{,.orig}
+cat <<EOF >/etc/apt/sources.list
+deb http://kvmhost.dasz:3142/debian wheezy main
+deb http://kvmhost.dasz:3142/security wheezy/updates main
+deb http://kvmhost.dasz:3142/debian wheezy-updates main
+EOF
+
 # Update the box
 apt-get -y update
-apt-get -y install linux-headers-$(uname -r) build-essential
-apt-get -y install zlib1g-dev libssl-dev libreadline-gplv2-dev
-apt-get -y install curl unzip
+apt-get -y install linux-headers-$(uname -r) build-essential \
+		zlib1g-dev libssl-dev libreadline-gplv2-dev \
+		curl unzip systemd mono-complete mono-xsp
 
 # Set up sudo
 echo 'vagrant ALL=NOPASSWD:ALL' > /etc/sudoers.d/vagrant
@@ -19,7 +27,7 @@ GRUB_DEFAULT=0
 GRUB_TIMEOUT=0
 GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
 GRUB_CMDLINE_LINUX_DEFAULT="quiet"
-GRUB_CMDLINE_LINUX="debian-installer=en_US"
+GRUB_CMDLINE_LINUX="init=/lib/systemd/systemd"
 EOF
 
 update-grub
