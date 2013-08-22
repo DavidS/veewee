@@ -43,10 +43,10 @@ Description=zetbox FastCGI process for %f
 
 [Service]
 User=zetbox
-WorkingDirectory=%f
+WorkingDirectory=%f/deployed/HttpService
 # make socket accessible for zetbox group members
 UMask=007
-ExecStart=/usr/bin/fastcgi-mono-server4 /socket=unix:/run/zetbox/%i.fastcgi /root=%f /applications=/:. /printlog=True /loglevels=Standard
+ExecStart=/usr/bin/fastcgi-mono-server4 /socket=unix:/run/zetbox/%i.fastcgi /root=%f/deployed/HttpService /applications=/:. /printlog=True /loglevels=Standard
 
 [Install]
 WantedBy=multi-user.target
@@ -56,6 +56,9 @@ EOF
 # needs to be done manually since systemd is not running yet
 mkdir -p /etc/systemd/system/multi-user.target.wants/
 ln -s /etc/systemd/system/zetbox@.service "/etc/systemd/system/multi-user.target.wants/zetbox@${DEST_ENC}.service"
+
+# allow access to the fastcgi socket
+adduser www-data zetbox
 
 
 # configure nginx
