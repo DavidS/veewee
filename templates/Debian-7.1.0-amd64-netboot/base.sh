@@ -4,6 +4,8 @@ cat <<EOF >/etc/apt/sources.list
 deb http://kvmhost.dasz:3142/debian wheezy main
 deb http://kvmhost.dasz:3142/security wheezy/updates main
 deb http://kvmhost.dasz:3142/debian wheezy-updates main
+# Use recompiled mono3 for squeeze
+deb http://kvmhost.dasz/debian zetbox main
 EOF
 
 # Update the box
@@ -11,7 +13,7 @@ apt-get -y update
 apt-get -y full-upgrade
 apt-get -y install linux-headers-$(uname -r) build-essential \
 		zlib1g-dev libssl-dev libreadline-gplv2-dev \
-		curl unzip systemd mono-complete mono-xsp
+		curl unzip systemd
 
 # Set up sudo
 echo 'vagrant ALL=NOPASSWD:ALL' > /etc/sudoers.d/vagrant

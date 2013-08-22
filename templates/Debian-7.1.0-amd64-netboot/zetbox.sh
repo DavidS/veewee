@@ -11,7 +11,10 @@ addgroup --system zetbox
 adduser --system --home=/var/lib/zetbox --ingroup zetbox zetbox
 
 # install required software
-apt-get -y install mono-complete mono-fastcgi-server4 nginx postgresql postgresql-contrib apache2-utils
+apt-get -y install nginx postgresql postgresql-contrib apache2-utils
+
+# ignore unsigned warning
+apt-get -y --force-yes install mono-complete mono-fastcgi-server4
 
 
 # fetch prepared binaries from build server
@@ -20,7 +23,7 @@ mkdir -p "$DEST"
 unzip zetbox.zip -d "$DEST"
 
 wget 'http://jenkins:8080/view/dasz/job/dasz-develop-Linux_deploy/ws/Configs/Appliance/*zip*/Appliance.zip'
-unzip zetbox.zip -d "$DEST"
+unzip Appliance.zip -d "$DEST"
 mv "$DEST/Appliance" "$DEST/Configs"
 
 
