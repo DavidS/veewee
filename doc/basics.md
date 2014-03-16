@@ -110,15 +110,19 @@ In order to build the defined box, execute this subcommand:
 
 The `build` subcommand can take the following optional flags:
 
-Flag Option                  | Description
------------------------------|-------------    
---force                      | overwrites if already exists
---auto                       | automatically downloads the ISO without asking
---nogui                      | builds in the background rather than opening a VM GUI and building in the GUI window
---debug                      | enabled debug mode output
---redirectconsole            | redirects console output
---postinstall-include=[...]  | forces specified file(s) to get included in postinstall even if filename has a leading underscore
---postinstall-exclude=[...]  | forces specified file(s) to get excluded from postinstall even if filename has no leading underscore
+Flag Option                     | Description
+--------------------------------|-------------    
+-f --force                      | overwrites if already exists
+-a --auto                       | automatically downloads the ISO without asking
+-n --nogui                      | builds in the background rather than opening a VM GUI and building in the GUI window
+-d --debug                      | enabled debug mode output
+-r --redirectconsole            | redirects console output
+-i --include                    | ruby regexp of postinstall filenames to additionally include
+-e --exclude                    | ruby regexp of postinstall filenames to exclude
+-i --postinstall-include=[...]  | forces specified file(s) to get included in postinstall even if filename has a leading underscore
+-e --postinstall-exclude=[...]  | forces specified file(s) to get excluded from postinstall even if filename has no leading underscore
+--[no-]checksum                 | force to check iso file check sum
+--skip-to-postinstall           | Skip the installation and go streight to postinstall. This is usefully for testing you post-install scripts.
 
 The `build` subcommand will run the following routines behind the scenes:
 
@@ -148,7 +152,7 @@ Validate will run some [cucumber tests](http://cukes.info/) against the box to s
 
 The following subcommand take care of exporting:
 
-    $ bundle exec veewee <provider> export 'mybuntubox'
+    $ bundle exec veewee <provider> export 'myubuntubox'
 
 The exported filetype depends on the provider. For more details on the providers, please have a look at the [Providers](providers.md) doc.
 
@@ -169,7 +173,7 @@ Then use the `define` command to create a new definition with a custom name. The
     # You can now edit the definition files stored in definitions/myubuntubox or build the box with:
     # veewee vbox build 'myubuntubox'
 
-**IMPORTANT:** You should avoid dots in the name because the box name gets used as the hostname also. Dots in the box name currently lead to invalid hostnames which causes several negative side effects (e.g. preventing the network devices to start).    
+**IMPORTANT:** You should avoid dots and underscores in the name because the box name gets used as the hostname also. Dots in the box name currently lead to invalid hostnames which causes several negative side effects (e.g. preventing the network devices to start). Underscores might prevent the build altogather.
 
 Confirm that all expected files are in place:
 
